@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
 <style>
 :root{
   --bg:#F3F1EC; --card:#FFFFFF; --soft:#F8F6F2; --line:#E4E0D8; --line2:#D3CDC2;
@@ -23,12 +24,12 @@ a{color:inherit}
 
 /* top bar */
 header.top{position:sticky;top:0;z-index:30;background:rgba(243,241,236,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top-inner{max-width:1240px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.top-inner{max-width:1240px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:19px;letter-spacing:-.01em}
 .mark{width:30px;height:30px;border-radius:9px;background:var(--ink);display:grid;place-items:center}
 .mark i{width:10px;height:10px;border-radius:50%;background:var(--accent)}
 nav.tabs{display:flex;gap:4px;flex-wrap:wrap}
-nav.tabs a{padding:8px 15px;border-radius:999px;color:var(--ink2);text-decoration:none;font-weight:500;font-size:16px}
+nav.tabs a{padding:8px 13px;border-radius:999px;color:var(--ink2);text-decoration:none;font-weight:500;font-size:16px}
 nav.tabs a:hover{background:#E9E6E0}
 nav.tabs a.on{background:var(--ink);color:#fff}
 .entity{margin-left:auto;text-align:right;font-size:14px;color:var(--muted);line-height:1.35}
@@ -85,7 +86,7 @@ h3{margin:0}
 .status{font-size:14px;color:var(--ink2)}
 .status.Resolved{color:var(--muted);text-decoration:line-through}
 
-input[type=text],input[type=number],input[type=date],input[type=search],select,textarea{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
+input[type=text],input[type=password],input[type=number],input[type=date],input[type=search],select,textarea{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
 label.f{display:block;font-size:14px;color:var(--ink2);font-weight:500;margin-bottom:6px}
 .field{margin-bottom:16px}
@@ -241,9 +242,40 @@ table.src tr.gap td,table.src tr.gap th{background:repeating-linear-gradient(135
 .mat div{background:var(--soft);border-radius:10px;padding:12px 14px}
 .mat span{font-size:13px;color:var(--muted);display:block}
 .mat b{font-size:18px;font-weight:600}
+
+/* auth & account */
+body.out header.top nav,body.out header.top .acct{display:none}
+.acct{margin-left:auto;display:flex;align-items:center;gap:12px}
+.eng-sel{width:auto;max-width:210px;font-size:15px;padding:8px 12px}
+.sync{font-size:13px;color:var(--muted);white-space:nowrap}
+.sync.err{color:#9B2F1A;font-weight:500}
+.sync.pending{color:var(--accent-ink)}
+.me{position:relative}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;border:0;cursor:pointer;font-weight:600;font-size:15px;letter-spacing:.02em}
+.avatar:hover{box-shadow:0 0 0 3px var(--accent-tint)}
+.menu{position:absolute;right:0;top:48px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.1);min-width:240px;padding:8px;display:none;z-index:50}
+.menu.on{display:block}
+.menu .who{padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.menu .who b{display:block;font-size:16px}
+.menu .who span{font-size:14px;color:var(--muted)}
+.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:10px 12px;border-radius:9px;cursor:pointer;font-size:15px;color:var(--ink)}
+.menu button:hover{background:var(--soft)}
+.login{min-height:calc(100vh - 200px);display:grid;place-items:center}
+.login .card{width:min(440px,100%);padding:36px}
+.login h1{font-size:27px}
+.err-msg{background:#FBEAE6;color:#8E2A17;border-radius:10px;padding:10px 14px;font-size:15px;margin-bottom:16px}
+.banner{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-tint);border:1px solid var(--accent-mid);border-radius:var(--r);padding:16px 20px;margin-bottom:22px}
+.banner p{margin:0}
+.role{font-size:13px;font-weight:500;padding:2px 10px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:var(--ink2)}
+.role.admin{background:var(--ink);color:#fff;border-color:var(--ink)}
+.inactive{color:var(--muted)}
+.loading{padding:80px 0;text-align:center;color:var(--muted)}
+@media (max-width:1180px){.sync{display:none}}
+@media (max-width:760px){.eng-sel{max-width:150px}}
+.byline{font-size:14px;color:var(--muted);margin-top:8px}
 </style>
 </head>
-<body>
+<body class="out">
 <header class="top">
   <div class="top-inner">
     <div class="brand"><div class="mark"><i></i></div>Audit Tracker</div>
@@ -253,8 +285,13 @@ table.src tr.gap td,table.src tr.gap th{background:repeating-linear-gradient(135
       <a href="#issues" data-r="issues">Issues</a>
       <a href="#standards" data-r="standards">Standards</a>
       <a href="#engagement" data-r="engagement">Engagement</a>
+      <a href="#users" data-r="users" id="navUsers" hidden>Users</a>
     </nav>
-    <div class="entity" id="entity"></div>
+    <div class="acct">
+      <span class="sync" id="sync"></span>
+      <select class="eng-sel" id="engSel" aria-label="Engagement"></select>
+      <div class="me"><button class="avatar" id="avatar" data-act="menu" aria-label="Account menu"></button><div class="menu" id="menu"></div></div>
+    </div>
   </div>
 </header>
 <main id="app"></main>
@@ -411,17 +448,97 @@ function sfrsFor(text){const out=[];KW.forEach(([re,r])=>{if(re.test(text)&&!out
 /* =========================================================================
    State & storage
    ========================================================================= */
-const LS_KEY='auditTracker.v1';
-const DEFAULT={settings:{entity:'Sample Pte. Ltd.',fyEnd:'2026-06-30',currency:'SGD',om:250000,pmPct:75,trivialPct:5,fluctPct:20},files:[],issues:[],seq:1};
+/* Supabase connection — the publishable key is safe to ship in the browser; access is enforced by RLS */
+const SUPABASE_URL='https://lopnwzfwsncisulpdbuo.supabase.co';
+const SUPABASE_KEY='sb_publishable_Hc9hvGRaTLSLTiUGIzxFgw_gxXPTYUf';
+const EMAIL_DOMAIN='audit-tracker.example.com'; // usernames sign in as <username>@EMAIL_DOMAIN in Supabase Auth
+const LS_KEY='auditTracker.v1';           // pre-login local data (offered for import once)
+const LS_ENG='auditTracker.lastEngagement';
+const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+const lsDel=k=>{try{localStorage.removeItem(k);}catch(e){}};
+const memStore={};
+const authStorage={getItem:k=>{try{return localStorage.getItem(k);}catch(e){return memStore[k]??null;}},
+  setItem:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){memStore[k]=v;}},removeItem:k=>{try{localStorage.removeItem(k);}catch(e){delete memStore[k];}}};
+const sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:authStorage,storageKey:'auditTracker.auth'}}):null;
+
+const DEFAULT={settings:{entity:'New engagement',fyEnd:'2026-06-30',currency:'SGD',om:250000,pmPct:75,trivialPct:5,fluctPct:20},files:[],issues:[],seq:1};
 const clone=o=>JSON.parse(JSON.stringify(o));
-function load(){try{const r=localStorage.getItem(LS_KEY);if(r){const d=JSON.parse(r);return Object.assign(clone(DEFAULT),d,{settings:Object.assign({},DEFAULT.settings,d.settings||{})});}}catch(e){}return clone(DEFAULT);}
-let S=load();
-function save(){
-  try{localStorage.setItem(LS_KEY,JSON.stringify(S));return;}catch(e){}
-  try{S.files.forEach(f=>f.sheets.forEach(s=>{if(s.rows&&s.rows.length>1000){s.rows=s.rows.slice(0,1000);s.truncated=true;}}));
-      localStorage.setItem(LS_KEY,JSON.stringify(S));toast('Browser storage is nearly full — saved source previews were trimmed to 1,000 rows per sheet.');return;}catch(e){}
-  try{S.files.forEach(f=>f.sheets.forEach(s=>{s.rows=null;}));localStorage.setItem(LS_KEY,JSON.stringify(S));toast('Browser storage is full — issues saved, but source previews were dropped.');}
-  catch(e){toast('Could not save to this browser’s local storage. Changes last until the page is closed.');}
+let S=clone(DEFAULT);
+let ME=null, TEAM=[], ENGS=[], ENG=null;
+let SNAP={settings:'',issues:new Map(),files:new Map()};
+const uuid=()=>(crypto.randomUUID?crypto.randomUUID():'10000000-1000-4000-8000-100000000000'.replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));
+const isUuid=s=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s||''));
+const must=async p=>{const r=await p;if(r.error)throw r.error;return r.data;};
+async function fetchAll(build){const out=[];for(let from=0;;from+=1000){const d=await must(build().range(from,from+999));out.push(...d);if(d.length<1000)break;}return out;}
+const chunk=(a,n)=>{const o=[];for(let i=0;i<a.length;i+=n)o.push(a.slice(i,i+n));return o;};
+
+/* row mapping */
+const ROW_CAP=3000;
+function toWb(f,engId){return{id:f.id,engagement_id:engId,name:f.name,uploaded_at:f.uploaded,
+  sheets:f.sheets.map(s=>Object.assign({},s,{rows:s.rows?s.rows.slice(0,ROW_CAP):null,truncated:!!(s.truncated||(s.rows&&s.rows.length>ROW_CAP))}))};}
+function fromWb(r){return{id:r.id,name:r.name,uploaded:r.uploaded_at,uploadedBy:r.uploaded_by,sheets:r.sheets||[]};}
+const wbSig=f=>JSON.stringify([f.name,f.sheets.map(s=>[s.name,s.kind,s.headerRow,s.map,s.tests])]);
+function toIssue(i,engId,files){files=files||S.files;const fid=i.loc&&i.loc.fileId;
+  return{id:i.uid,engagement_id:engId,ref:i.id,workbook_id:(fid&&isUuid(fid)&&files.some(f=>f.id===fid))?fid:null,dedupe_key:i.key||null,test:i.test||null,
+    source:i.source==='auto'?'auto':'manual',title:i.title||'(untitled issue)',description:i.desc||'',amount:Math.round((+i.amount||0)*100)/100,likelihood:Math.min(5,Math.max(1,+i.likelihood||3)),
+    category:i.category||'Misstatement',assertion:i.assertion||null,ssa_refs:i.ssa||[],sfrs_refs:i.sfrs||[],status:i.status||'Open',owner:i.owner||'',notes:i.notes||'',
+    priority_override:i.priorityOverride||null,level_override:i.levelOverride||null,location:i.loc||null};}
+function fromIssue(r){return{uid:r.id,id:r.ref,key:r.dedupe_key,test:r.test,source:r.source,title:r.title,desc:r.description,amount:+r.amount,likelihood:r.likelihood,
+  category:r.category,assertion:r.assertion,ssa:r.ssa_refs||[],sfrs:r.sfrs_refs||[],status:r.status,owner:r.owner||'',notes:r.notes||'',
+  priorityOverride:r.priority_override||'',levelOverride:r.level_override||'',loc:r.location,created:r.created_at,createdBy:r.created_by,updatedBy:r.updated_by,updatedAt:r.updated_at};}
+function snapshot(){SNAP={settings:JSON.stringify(S.settings),issues:new Map(S.issues.map(i=>[i.uid,JSON.stringify(toIssue(i,ENG.id))])),files:new Map(S.files.map(f=>[f.id,wbSig(f)]))};}
+
+/* load */
+async function loadEngagement(id){
+  const [eng,wbs,iss]=await Promise.all([
+    must(sb.from('engagements').select('*').eq('id',id).single()),
+    fetchAll(()=>sb.from('workbooks').select('*').eq('engagement_id',id).order('uploaded_at',{ascending:false})),
+    fetchAll(()=>sb.from('issues').select('*').eq('engagement_id',id).order('created_at'))]);
+  ENG={id:eng.id,name:eng.name};
+  S={settings:Object.assign({},DEFAULT.settings,eng.settings||{},{entity:eng.name}),files:wbs.map(fromWb),issues:iss.map(fromIssue),seq:eng.issue_seq+1};
+  snapshot();lsSet(LS_ENG,id);
+}
+async function loadEngagementList(){ENGS=await must(sb.from('engagements').select('id,name,updated_at').order('updated_at',{ascending:false}));}
+async function createEngagement(name,settings){
+  const st=Object.assign({},DEFAULT.settings,settings||{},{entity:name});
+  const e=await must(sb.from('engagements').insert({name,settings:st}).select('id,name,updated_at').single());
+  ENGS.unshift(e);return e;
+}
+async function reserveRefs(n){if(!n)return 0;const start=await must(sb.rpc('reserve_issue_refs',{p_engagement:ENG.id,p_count:n}));S.seq=start+n;return start;}
+const refName=n=>'AT-'+String(n).padStart(3,'0');
+
+/* save → debounced diff sync to Supabase */
+let syncTimer=null,syncing=null,syncAgain=false,syncErr='';
+function setSync(state,msg){const el=$('#sync');if(!el)return;el.className='sync '+(state==='error'?'err':state==='pending'?'pending':'');
+  el.textContent=state==='error'?'Not saved':state==='pending'?'Saving…':state==='saved'?'Saved':'';el.title=msg||'';}
+function save(){if(!ENG)return;clearTimeout(syncTimer);setSync('pending');syncTimer=setTimeout(()=>sync(),400);}
+async function flush(){clearTimeout(syncTimer);if(syncing)await syncing;await sync();}
+function sync(){
+  if(!ENG||!ME)return Promise.resolve();
+  if(syncing){syncAgain=true;return syncing;}
+  syncing=(async()=>{
+    const engId=ENG.id;
+    try{
+      const st=JSON.stringify(S.settings);
+      if(st!==SNAP.settings){await must(sb.from('engagements').update({name:(S.settings.entity||'Untitled engagement').trim()||'Untitled engagement',settings:S.settings}).eq('id',engId));
+        SNAP.settings=st;ENG.name=S.settings.entity;const e=ENGS.find(x=>x.id===engId);if(e)e.name=ENG.name;renderAcct();}
+      const live=new Map(S.files.map(f=>[f.id,f]));
+      for(const f of S.files){const sig=wbSig(f);if(SNAP.files.get(f.id)===sig)continue;
+        if(SNAP.files.has(f.id))await must(sb.from('workbooks').update({name:f.name,sheets:toWb(f,engId).sheets}).eq('id',f.id));
+        else await must(sb.from('workbooks').insert(toWb(f,engId)));
+        SNAP.files.set(f.id,sig);}
+      const changed=[];const sigs=new Map();
+      S.issues.forEach(i=>{if(!i.uid)i.uid=uuid();const r=toIssue(i,engId);const sg=JSON.stringify(r);if(SNAP.issues.get(i.uid)!==sg){changed.push(r);sigs.set(i.uid,sg);}});
+      for(const c of chunk(changed,400)){await must(sb.from('issues').upsert(c,{onConflict:'id'}));c.forEach(r=>SNAP.issues.set(r.id,sigs.get(r.id)));}
+      const liveI=new Set(S.issues.map(i=>i.uid));const goneI=[...SNAP.issues.keys()].filter(u=>!liveI.has(u));
+      for(const c of chunk(goneI,200)){await must(sb.from('issues').delete().in('id',c));c.forEach(u=>SNAP.issues.delete(u));}
+      const goneF=[...SNAP.files.keys()].filter(id=>!live.has(id));
+      for(const c of chunk(goneF,100)){await must(sb.from('workbooks').delete().in('id',c));c.forEach(u=>SNAP.files.delete(u));}
+      syncErr='';setSync('saved');
+    }catch(e){syncErr=e.message||String(e);setSync('error',syncErr);toast('Couldn’t save to Supabase: '+syncErr);clearTimeout(syncTimer);syncTimer=setTimeout(()=>sync(),8000);}
+  })();
+  return syncing.finally(()=>{syncing=null;if(syncAgain){syncAgain=false;sync();}});
 }
 const M=()=>{const s=S.settings;const om=Math.max(0,+s.om||0);return{om,pm:om*(+s.pmPct||0)/100,triv:om*(+s.trivialPct||0)/100};};
 
@@ -449,8 +566,7 @@ function parseD(v){if(v==null||v==='')return null;if(v instanceof Date)return is
 const fmtD=d=>d?d.toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'';
 function cellVal(v){if(v instanceof Date){if(isNaN(v))return null;return isoD(new Date(v.getTime()+432e5));}if(typeof v==='string'){const t=v.trim();return t===''?null:t;}if(typeof v==='boolean')return String(v);return v;}
 function groupBy(arr,fn){const m=new Map();arr.forEach(x=>{const k=fn(x);if(!m.has(k))m.set(k,[]);m.get(k).push(x);});return m;}
-function uidF(){return 'f'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-function nextId(){return 'AT-'+String(S.seq++).padStart(3,'0');}
+function uidF(){return uuid();}
 let toastT;function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),3800);}
 
 /* =========================================================================
@@ -632,27 +748,35 @@ function parseWorkbook(name,wb){
   return{file,issues};
 }
 const untouched=i=>i.source==='auto'&&i.status==='Open'&&!i.notes&&!i.owner&&!i.priorityOverride&&!i.levelOverride;
-function mergeIssues(file,newIssues,replaceFileIds){
-  // drop untouched auto issues for replaced files; keep reviewed ones
-  S.issues=S.issues.filter(i=>!(i.loc&&replaceFileIds.includes(i.loc.fileId)&&untouched(i)));
+// Reserves issue numbers in Supabase first, then applies the change (so a failed reservation changes nothing)
+async function mergeIssues(file,newIssues,replaceFileIds,apply){
+  const drop=i=>i.loc&&replaceFileIds.includes(i.loc.fileId)&&untouched(i);
+  const keys=new Set(S.issues.filter(i=>!drop(i)).map(i=>i.key));
+  const add=newIssues.filter(i=>{if(keys.has(i.key))return false;keys.add(i.key);return true;});
+  const start=await reserveRefs(add.length);
+  if(apply)apply();
+  S.issues=S.issues.filter(i=>!drop(i));
   S.issues.forEach(i=>{if(i.loc&&replaceFileIds.includes(i.loc.fileId)){i.loc.fileId=file.id;}});
-  const keys=new Set(S.issues.map(i=>i.key));let n=0;
-  newIssues.forEach(i=>{if(keys.has(i.key))return;i.id=nextId();S.issues.push(i);n++;});
-  return n;
+  add.forEach((i,k)=>{i.id=refName(start+k);i.uid=uuid();S.issues.push(i);});
+  return add.length;
 }
-function ingest(name,wb){
+let busy=0;
+async function ingest(name,wb){
   const old=S.files.filter(f=>f.name===name).map(f=>f.id);
   const {file,issues}=parseWorkbook(name,wb);
-  S.files=S.files.filter(f=>f.name!==name);S.files.unshift(file);
-  const n=mergeIssues(file,issues,old);save();
-  toast(`${name}: ${file.sheets.length} sheet${file.sheets.length!==1?'s':''} tested — ${n} new issue${n!==1?'s':''} logged.`);
-  render();
+  busy++;
+  try{
+    const n=await mergeIssues(file,issues,old,()=>{S.files=S.files.filter(f=>f.name!==name);S.files.unshift(file);});
+    save();
+    toast(`${name}: ${file.sheets.length} sheet${file.sheets.length!==1?'s':''} tested — ${n} new issue${n!==1?'s':''} logged.`);
+  }catch(e){toast(`Couldn’t save results for ${name}: ${e.message}`);}
+  finally{busy--;render();}
 }
-function rerun(fileId){
+async function rerun(fileId){
   const f=S.files.find(x=>x.id===fileId);if(!f)return 0;
   if(f.sheets.some(s=>!s.rows)){toast(`Source rows for ${f.name} are no longer stored — re-upload the file to re-test.`);return 0;}
-  const all=[];f.sheets.forEach(sh=>{const res=analyseSheet(f,sh,sh.rows);Object.assign(sh,{headerRow:res.headerRow,map:res.map,tests:res.tests,kind:res.kind});all.push(...res.issues);});
-  return mergeIssues(f,all,[f.id]);
+  const all=[],meta=[];f.sheets.forEach(sh=>{const res=analyseSheet(f,sh,sh.rows);meta.push([sh,res]);all.push(...res.issues);});
+  return mergeIssues(f,all,[f.id],()=>meta.forEach(([sh,res])=>Object.assign(sh,{headerRow:res.headerRow,map:res.map,tests:res.tests,kind:res.kind})));
 }
 function handleFiles(list){
   if(typeof XLSX==='undefined'){toast('The spreadsheet reader did not load — check your connection and reload the page.');return;}
@@ -714,7 +838,7 @@ function loadSample(){
 /* =========================================================================
    Rendering
    ========================================================================= */
-const ROUTES=['overview','testing','issues','standards','engagement'];
+const ROUTES=['overview','testing','issues','standards','engagement','users'];
 const route=()=>{const h=location.hash.slice(1);return ROUTES.includes(h)?h:'overview';};
 let F={q:'',level:'',cat:'',status:'active',file:'',cell:''};
 let LIBSEL={std:'SSA 240',hl:[],q:''};
@@ -752,11 +876,14 @@ function issueCard(x,rank,compact){const i=x.i,a=x.a;
   </div>`;}
 
 function render(){
-  const r=route();
+  if(!ME||!ENG)return;
+  let r=route();
+  if(r==='users'&&ME.role!=='admin'){r='overview';}
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.r===r));
-  const s=S.settings;$('#entity').innerHTML=`<b>${esc(s.entity||'Untitled engagement')}</b>FYE ${esc(fmtD(parseD(s.fyEnd))||'—')} · SFRS(I)`;
+  renderAcct();
+  if(r==='users'){vUsers();if(openId)renderDrawer();return;}
   const v={overview:vOverview,testing:vTesting,issues:vIssues,standards:vStandards,engagement:vEngagement}[r];
-  $('#app').innerHTML=v();
+  $('#app').innerHTML=(r==='overview'?importBanner():'')+v();
   if(r==='standards')setTimeout(()=>{const el=document.querySelector('.para.hl');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},60);
   if(openId)renderDrawer();
 }
@@ -898,8 +1025,8 @@ function vEngagement(){const s=S.settings,{om,pm,triv}=M();
       <div class="row mt"><button class="btn primary" data-act="rerunall" ${S.files.length?'':'disabled'}>Re-run tests on all files</button></div>
     </div>
   </div>
-  <div class="card mt"><h2>Data</h2><p class="hint" style="margin-top:-8px;margin-bottom:16px">Everything is saved in this browser’s local storage only — it is not shared with other devices or people. Copy a backup to move it elsewhere.</p>
-    <div class="row"><button class="btn" data-act="csv">Copy issues as CSV</button><button class="btn" data-act="backup">Copy backup (JSON)</button><button class="btn" data-act="restore">Restore from backup</button><button class="btn ghost danger" data-act="reset">Clear all data</button></div></div>
+  <div class="card mt"><h2>Data</h2><p class="hint" style="margin-top:-8px;margin-bottom:16px">This engagement is stored in Supabase and shared with every active user on the team. Changes save automatically.</p>
+    <div class="row"><button class="btn" data-act="newEng">New engagement</button><button class="btn" data-act="csv">Copy issues as CSV</button><button class="btn" data-act="backup">Copy backup (JSON)</button><button class="btn" data-act="restore">Import backup as new engagement</button>${ME&&ME.role==='admin'?'<button class="btn ghost danger" data-act="delEng">Delete this engagement</button>':''}</div></div>
   <div class="card mt"><h2>How issues are ranked</h2>
     <table class="t"><thead><tr><th>Step</th><th>Rule</th><th>Reference</th></tr></thead><tbody>
     <tr><td>Impact (1–5)</td><td>&lt; trivial = 1 · trivial–½PM = 2 · ½PM–PM = 3 · PM–OM = 4 · ≥ OM = 5</td><td>${refChip('SSA 320|11')} ${refChip('SSA 450|5')}</td></tr>
@@ -911,6 +1038,9 @@ function vEngagement(){const s=S.settings,{om,pm,triv}=M();
 function refBlock(r,iid){const [s,p]=r.split('|');const std=LIB[s];const t=std&&(std.p.find(x=>x[0]===p)||[])[1];
   return `<div class="ref"><div class="ref-h"><span class="ref-code">${esc(s)}<span class="pn">¶${esc(p)}</span></span><button class="link" data-act="lib" data-std="${esc(s)}" data-p="${esc(p)}" data-iss="${esc(iid)}">Open in library →</button></div>
     <div class="ref-t">${esc(std?std.t:'')}</div><p><mark>${esc(t||'Paragraph not in the built-in library — add your own note.')}</mark></p></div>`;}
+function byline(i){const c=whoName(i.createdBy),u=whoName(i.updatedBy);const d=i.updatedAt?new Date(i.updatedAt).toLocaleString('en-SG',{dateStyle:'medium',timeStyle:'short'}):'';
+  const parts=[];if(i.source==='auto')parts.push('Raised by automated test');else if(c)parts.push('Added by '+c);if(u&&d)parts.push(`last updated by ${u}, ${d}`);
+  return parts.length?`<div class="byline">${esc(parts.join(' · '))}</div>`:'';}
 function renderDrawer(){
   const i=S.issues.find(x=>x.id===openId);const d=$('#drawer');
   if(!i){closeDrawer();return;}
@@ -918,7 +1048,7 @@ function renderDrawer(){
   const f=i.loc&&i.loc.fileId&&S.files.find(x=>x.id===i.loc.fileId);const sh=f&&f.sheets.find(s=>s.name===i.loc.sheet);
   const sel=(id,opts,v)=>`<select id="${id}">${opts.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(v)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
   d.innerHTML=`<div class="dr-head"><div class="row" style="justify-content:space-between"><div class="row">${lvPill(a.level)}<span class="prio ${a.prio}">${a.prio}</span><span class="tag">${esc(i.category)}</span><span class="hint" style="margin:0">${esc(i.id)}${rk?' · rank #'+rk:''}</span></div><button class="x" data-act="close" aria-label="Close">×</button></div>
-    <div class="dr-title">${esc(i.title)}</div></div>
+    <div class="dr-title">${esc(i.title)}</div>${byline(i)}</div>
   <div class="dr-body">
     <div class="kv"><div><span>Amount</span><b class="num">${fmtShort(i.amount)}</b></div><div><span>% of OM</span><b class="num">${a.pctOM.toFixed(1)}%</b></div><div><span>Likelihood × impact</span><b class="num">${a.L} × ${a.I}</b></div><div><span>Risk score</span><b class="num">${a.score}/25</b></div></div>
     <div class="sec"><div class="sec-h">Where to find it</div><div class="where"><div class="crumb">${locHTML(i.loc)}</div>
@@ -929,7 +1059,7 @@ function renderDrawer(){
     <div class="sec"><div class="sec-h">SFRS(I) references</div>${i.sfrs.map(r=>refBlock(r,i.id)).join('')||'<p class="na">None linked.</p>'}</div>
     <div class="sec"><div class="sec-h">Review</div>
       <div class="grid g2e"><div class="field"><label class="f" for="d_status">Status</label>${sel('d_status',STATUSES.map(s=>[s,s]),i.status)}</div>
-      <div class="field"><label class="f" for="d_owner">Owner</label><input type="text" id="d_owner" value="${esc(i.owner)}" placeholder="e.g. Senior — receivables"></div>
+      <div class="field"><label class="f" for="d_owner">Owner</label><input type="text" id="d_owner" list="teamList" value="${esc(i.owner)}" placeholder="Assign to a team member"><datalist id="teamList">${TEAM.filter(p=>p.active).map(p=>`<option value="${esc(p.display_name||p.username)}">`).join('')}</datalist></div>
       <div class="field"><label class="f" for="d_like">Likelihood</label>${sel('d_like',[[1,'1 — Rare'],[2,'2 — Unlikely'],[3,'3 — Possible'],[4,'4 — Likely'],[5,'5 — Almost certain']],a.L)}</div>
       <div class="field"><label class="f" for="d_prio">Priority</label>${sel('d_prio',[['','Auto ('+({Significant:'P1',High:'P2',Medium:'P3',Low:'P4'})[a.level]+')'],['P1','P1'],['P2','P2'],['P3','P3'],['P4','P4']],i.priorityOverride||'')}</div></div>
       <div class="field"><label class="f" for="d_notes">Work done / notes</label><textarea id="d_notes" rows="4" placeholder="Procedures performed, evidence obtained, conclusion (SSA 230 ¶8)">${esc(i.notes)}</textarea></div>
@@ -1000,10 +1130,12 @@ function issueForm(i){
   </form>
   <div class="modal-f"><button class="btn" data-act="mclose">Cancel</button><button class="btn primary" id="i_save">${isNew?'Add issue':'Save changes'}</button></div>`);
   $('#i_rq').oninput=e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#i_refs label').forEach(l=>l.style.display=l.dataset.txt.includes(q)?'':'none');};
-  const submit=ev=>{if(ev)ev.preventDefault();const t=$('#i_t').value.trim();if(!t){$('#i_t').focus();toast('Give the issue a title.');return;}
+  const submit=async ev=>{if(ev)ev.preventDefault();const t=$('#i_t').value.trim();if(!t){$('#i_t').focus();toast('Give the issue a title.');return;}
     const refs=[...document.querySelectorAll('#i_refs input:checked')].map(x=>x.value);
     const changedLoc=isNew||$('#i_ce').value!==cells||$('#i_fn').value!==(loc.fileName||'')||$('#i_sh').value!==(loc.sheet||'');
-    const obj=isNew?{id:nextId(),source:'manual',status:'Open',owner:'',notes:'',created:new Date().toISOString(),key:'manual|'+Date.now()}:S.issues.find(x=>x.id===i.id);
+    let newRef='';
+    if(isNew){const b=$('#i_save');b.disabled=true;try{newRef=refName(await reserveRefs(1));}catch(err){b.disabled=false;toast('Couldn’t reserve an issue number: '+err.message);return;}}
+    const obj=isNew?{id:newRef,uid:uuid(),source:'manual',status:'Open',owner:'',notes:'',created:new Date().toISOString(),key:'manual|'+uuid()}:S.issues.find(x=>x.id===i.id);
     Object.assign(obj,{title:t,amount:Math.abs(+$('#i_a').value||0),likelihood:+$('#i_l').value,category:$('#i_c').value,assertion:$('#i_as').value,desc:$('#i_d').value.trim(),
       ssa:refs.filter(r=>r.startsWith('SSA')),sfrs:refs.filter(r=>r.startsWith('SFRS'))});
     if(changedLoc)obj.loc=Object.assign({},isNew?{}:obj.loc,{fileName:$('#i_fn').value.trim(),sheet:$('#i_sh').value.trim(),cellsText:$('#i_ce').value.trim()});
@@ -1023,6 +1155,7 @@ async function copyText(text,label){try{await navigator.clipboard.writeText(text
    Events
    ========================================================================= */
 document.addEventListener('click',e=>{
+  if(!e.target.closest('.me')){const m=$('#menu');if(m)m.classList.remove('on');}
   const t=e.target.closest('[data-act]');
   if(e.target.id==='scrim'){closeDrawer();return;}
   if(e.target.id==='modal'){closeModal();return;}
@@ -1044,16 +1177,33 @@ document.addEventListener('click',e=>{
     case 'libnav':LIBSEL={std:t.dataset.std,hl:t.dataset.p?[t.dataset.p]:[],q:''};render();window.scrollTo({top:0});break;
     case 'cell':F=Object.assign({},F,{cell:t.dataset.cell,status:'active',level:'',cat:'',q:''});location.hash='issues';break;
     case 'clearcell':F.cell='';render();break;
-    case 'rerun':{const n=rerun(t.dataset.f);save();render();toast(`Tests re-run — ${n} new issue${n!==1?'s':''}. Reviewed issues were kept.`);break;}
-    case 'rerunall':{let n=0;S.files.forEach(f=>n+=rerun(f.id));save();render();toast(`All files re-tested — ${n} new issue${n!==1?'s':''}. Reviewed issues were kept.`);break;}
+    case 'rerun':(async()=>{try{const n=await rerun(t.dataset.f);save();render();toast(`Tests re-run — ${n} new issue${n!==1?'s':''}. Reviewed issues were kept.`);}catch(err){toast('Re-run failed: '+err.message);}})();break;
+    case 'rerunall':(async()=>{try{let n=0;for(const f of [...S.files])n+=await rerun(f.id);save();render();toast(`All files re-tested — ${n} new issue${n!==1?'s':''}. Reviewed issues were kept.`);}catch(err){toast('Re-run failed: '+err.message);}})();break;
     case 'delfile':{const f=S.files.find(x=>x.id===t.dataset.f);const n=S.issues.filter(i=>i.loc&&i.loc.fileId===f.id).length;
       confirmDlg('Remove file?',`Remove ${f.name} and its ${n} linked issue${n!==1?'s':''}? This cannot be undone.`,'Remove',()=>{S.files=S.files.filter(x=>x.id!==f.id);S.issues=S.issues.filter(i=>!(i.loc&&i.loc.fileId===f.id));save();render();toast('File removed.');});break;}
     case 'delissue':{const id=t.dataset.id;confirmDlg('Delete issue?',`Delete ${id}? This cannot be undone.`,'Delete',()=>{S.issues=S.issues.filter(i=>i.id!==id);save();closeDrawer();render();});break;}
     case 'csv':copyText(csv(),'Issues CSV');break;
     case 'backup':copyText(JSON.stringify({settings:S.settings,issues:S.issues,seq:S.seq,files:S.files.map(f=>Object.assign({},f,{sheets:f.sheets.map(s=>Object.assign({},s,{rows:null}))}))}),'Backup JSON');break;
-    case 'restore':modal(`<div class="modal-h"><h2>Restore from backup</h2><button class="x" data-act="mclose">×</button></div><div class="modal-b"><p class="hint" style="margin-top:0">Paste a backup JSON copied from this app. It replaces the current data (source previews are not included in backups).</p><textarea id="rst" rows="10"></textarea></div><div class="modal-f"><button class="btn" data-act="mclose">Cancel</button><button class="btn primary" id="rstGo">Restore</button></div>`);
-      $('#rstGo').onclick=()=>{try{const d=JSON.parse($('#rst').value);if(!d||!Array.isArray(d.issues))throw new Error('Not a backup');S=Object.assign(clone(DEFAULT),d,{settings:Object.assign({},DEFAULT.settings,d.settings||{})});save();closeModal();render();toast('Backup restored.');}catch(err){toast('That doesn’t look like a valid backup.');}};break;
-    case 'reset':confirmDlg('Clear all data?','This deletes every file, issue and setting stored in this browser.','Clear everything',()=>{S=clone(DEFAULT);save();closeDrawer();render();toast('All data cleared.');});break;
+    case 'restore':modal(`<div class="modal-h"><h2>Import backup</h2><button class="x" data-act="mclose">×</button></div><div class="modal-b"><p class="hint" style="margin-top:0">Paste a backup JSON copied from this app. It is imported as a new engagement, so nothing existing is overwritten.</p><textarea id="rst" rows="10"></textarea></div><div class="modal-f"><button class="btn" data-act="mclose">Cancel</button><button class="btn primary" id="rstGo">Import</button></div>`);
+      $('#rstGo').onclick=async()=>{let d;try{d=JSON.parse($('#rst').value);if(!d||!Array.isArray(d.issues))throw 0;}catch(err){toast('That doesn’t look like a valid backup.');return;}
+        $('#rstGo').disabled=true;try{await importAsEngagement(d,'imported');closeModal();toast('Backup imported as a new engagement.');}catch(err){$('#rstGo').disabled=false;toast('Import failed: '+err.message);}};break;
+    case 'newEng':newEngagementDlg();break;
+    case 'delEng':confirmDlg('Delete engagement?',`Delete “${ENG.name}” with its ${S.files.length} file(s) and ${S.issues.length} issue(s) for everyone? This cannot be undone.`,'Delete engagement',async()=>{
+      try{clearTimeout(syncTimer);await must(sb.from('engagements').delete().eq('id',ENG.id));lsDel(LS_ENG);await loadEngagementList();
+        if(!ENGS.length)await createEngagement('New engagement');await switchEngagement(ENGS[0].id,true);toast('Engagement deleted.');}catch(err){toast('Delete failed: '+err.message);}});break;
+    case 'importLocal':(async()=>{const d=localData();if(!d)return;t.disabled=true;try{await importAsEngagement(d,'from this browser');lsDel(LS_KEY);toast('Browser data imported into a new engagement.');}catch(err){t.disabled=false;toast('Import failed: '+err.message);}})();break;
+    case 'dismissImport':lsSet(LS_KEY+'.dismissed','1');render();break;
+    case 'menu':$('#menu').classList.toggle('on');break;
+    case 'chpw':$('#menu').classList.remove('on');changePassword(false);break;
+    case 'reload':$('#menu').classList.remove('on');(async()=>{try{await flush();await loadEngagementList();await loadEngagement(ENG.id);render();toast('Data reloaded.');}catch(err){toast('Reload failed: '+err.message);}})();break;
+    case 'gousers':$('#menu').classList.remove('on');location.hash='users';break;
+    case 'signout':$('#menu').classList.remove('on');signOut();break;
+    case 'retry':boot();break;
+    case 'uAdd':userForm(null);break;
+    case 'uEdit':userForm(USERS.find(u=>u.id===t.dataset.u));break;
+    case 'uReset':resetForm(USERS.find(u=>u.id===t.dataset.u));break;
+    case 'uDel':{const u=USERS.find(x=>x.id===t.dataset.u);confirmDlg('Delete user?',`Delete ${u.display_name} (@${u.username})? They will no longer be able to sign in. Issues they worked on are kept.`,'Delete user',async()=>{
+      try{await adminCall({action:'delete',user_id:u.id});toast(`${u.display_name} deleted.`);await refreshTeam();vUsers();}catch(err){toast(err.message);}});break;}
   }
 });
 document.addEventListener('input',e=>{
@@ -1065,13 +1215,220 @@ document.addEventListener('change',e=>{
   if(id==='fs'){F.status=e.target.value;render();}if(id==='fl'){F.level=e.target.value;render();}if(id==='fc'){F.cat=e.target.value;render();}if(id==='ff'){F.file=e.target.value;render();}
   if(e.target.dataset&&e.target.dataset.set){const k=e.target.dataset.set;let v=e.target.value;if(['om','pmPct','trivialPct','fluctPct'].includes(k))v=Math.max(0,+v||0);S.settings[k]=v;save();render();toast('Engagement settings saved.');}
   if(id==='fileIn'){handleFiles(e.target.files);e.target.value='';}
+  if(id==='engSel'){const v=e.target.value;if(v==='__new'){e.target.value=ENG.id;newEngagementDlg();}else if(v!==ENG.id)switchEngagement(v);}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#modal').classList.contains('on'))closeModal();else if(openId)closeDrawer();}});
 ['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();const d=$('#drop');if(d)d.classList.add('over');}));
 ['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();const d=$('#drop');if(d&&(ev==='drop'||!e.relatedTarget))d.classList.remove('over');}));
 document.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
 window.addEventListener('hashchange',()=>{closeModal();render();window.scrollTo({top:0});});
-render();
+window.addEventListener('beforeunload',e=>{const el=$('#sync');if(ME&&el&&(el.classList.contains('pending')||el.classList.contains('err'))){e.preventDefault();e.returnValue='';}});
+
+/* =========================================================================
+   Accounts — Supabase Auth (passwords live in auth.users), profiles in public.profiles
+   ========================================================================= */
+let signingOut=false;
+const roleLabel=r=>r==='admin'?'Administrator':'Auditor';
+const whoName=id=>{const p=TEAM.find(x=>x.id===id);return p?(p.display_name||p.username):'';};
+const toEmail=u=>u.includes('@')?u:`${u}@${EMAIL_DOMAIN}`;
+
+function renderAcct(){
+  if(!ME)return;
+  $('#navUsers').hidden=ME.role!=='admin';
+  const sel=$('#engSel');
+  if(document.activeElement!==sel)sel.innerHTML=ENGS.map(e=>`<option value="${esc(e.id)}" ${ENG&&e.id===ENG.id?'selected':''}>${esc(e.name)}</option>`).join('')+'<option value="__new">+ New engagement…</option>';
+  const nm=ME.display_name||ME.username;
+  $('#avatar').textContent=nm.split(/\s+/).filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+  $('#avatar').title=nm;
+  $('#menu').innerHTML=`<div class="who"><b>${esc(nm)}</b><span>@${esc(ME.username)} · ${roleLabel(ME.role)}</span></div>
+    <button data-act="chpw">Change password</button><button data-act="reload">Reload data</button>${ME.role==='admin'?'<button data-act="gousers">Manage users</button>':''}<button data-act="signout">Sign out</button>`;
+}
+
+function showLogin(msg){
+  ME=null;ENG=null;ENGS=[];TEAM=[];S=clone(DEFAULT);clearTimeout(syncTimer);setSync('');
+  document.body.classList.add('out');closeDrawer();closeModal();
+  $('#app').innerHTML=`<div class="login"><form class="card" id="loginForm" novalidate>
+    <h1>Sign in</h1><p class="sub" style="margin-bottom:22px">Audit Tracker · SFRS(I) &amp; SSA</p>
+    <div id="loginErr">${msg?`<div class="err-msg">${esc(msg)}</div>`:''}</div>
+    <div class="field"><label class="f" for="lu">Username</label><input type="text" id="lu" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+    <div class="field"><label class="f" for="lp">Password</label><input type="password" id="lp" autocomplete="current-password"></div>
+    <button class="btn primary" style="width:100%;justify-content:center;margin-top:4px" id="lb" type="submit">Sign in</button>
+    <p class="hint" style="text-align:center;margin-top:18px">Accounts are created by your administrator.</p></form></div>`;
+  const err=m=>{$('#loginErr').innerHTML=`<div class="err-msg">${esc(m)}</div>`;};
+  $('#loginForm').onsubmit=async ev=>{ev.preventDefault();
+    const u=$('#lu').value.trim().toLowerCase(),p=$('#lp').value;
+    if(!u||!p){err('Enter your username and password.');return;}
+    const b=$('#lb');b.disabled=true;b.textContent='Signing in…';
+    const {data,error}=await sb.auth.signInWithPassword({email:toEmail(u),password:p});
+    if(error){b.disabled=false;b.textContent='Sign in';
+      err(/banned/i.test(error.message)?'This account has been deactivated. Contact your administrator.':/invalid|credentials/i.test(error.message)?'Incorrect username or password.':error.message);
+      $('#lp').select();return;}
+    await startSession(data.user);};
+  setTimeout(()=>{const el=$('#lu');if(el)el.focus();},30);
+}
+
+async function startSession(user){
+  document.body.classList.remove('out');
+  $('#app').innerHTML='<div class="loading">Loading your engagements…</div>';
+  try{
+    const prof=await must(sb.from('profiles').select('*').eq('id',user.id).maybeSingle());
+    if(!prof||!prof.active){signingOut=true;await sb.auth.signOut();signingOut=false;showLogin('Your account is not active. Contact your administrator.');return;}
+    ME=prof;
+    await refreshTeam();
+    await loadEngagementList();
+    if(!ENGS.length)await createEngagement('Sample Pte. Ltd.');
+    const last=lsGet(LS_ENG);const pick=ENGS.find(e=>e.id===last)||ENGS[0];
+    await loadEngagement(pick.id);
+    setSync('saved');render();
+    if(ME.must_change_password)changePassword(true);
+  }catch(e){
+    document.body.classList.add('out');
+    $('#app').innerHTML=`<div class="login"><div class="card"><h1>Couldn’t load your data</h1><p class="sub">${esc(e.message||e)}</p><div class="row"><button class="btn primary" data-act="retry">Try again</button><button class="btn" data-act="signout">Sign out</button></div></div></div>`;
+  }
+}
+async function refreshTeam(){TEAM=await must(sb.from('profiles').select('id,username,display_name,role,active').order('display_name'));}
+
+async function signOut(){
+  try{await flush();}catch(e){}
+  signingOut=true;try{await sb.auth.signOut();}catch(e){}signingOut=false;
+  showLogin();
+}
+
+function changePassword(first){
+  modal(`<div class="modal-h"><h2>${first?'Choose your password':'Change password'}</h2><button class="x" data-act="mclose">×</button></div>
+  <form class="modal-b" id="pwForm" novalidate>
+    ${first?'<p style="margin-top:0">You signed in with an initial password set by your administrator. Choose your own password to secure your account.</p>':''}
+    <div id="pwErr"></div>
+    <div class="field"><label class="f" for="pw1">New password</label><input type="password" id="pw1" autocomplete="new-password"><div class="hint">At least 8 characters.</div></div>
+    <div class="field"><label class="f" for="pw2">Confirm new password</label><input type="password" id="pw2" autocomplete="new-password"></div>
+  </form>
+  <div class="modal-f"><button class="btn" data-act="mclose">${first?'Remind me later':'Cancel'}</button><button class="btn primary" id="pwGo">Update password</button></div>`);
+  const err=m=>{$('#pwErr').innerHTML=`<div class="err-msg">${esc(m)}</div>`;};
+  const go=async ev=>{if(ev)ev.preventDefault();const a=$('#pw1').value,b=$('#pw2').value;
+    if(a.length<8){err('Use at least 8 characters.');return;}if(a!==b){err('The two passwords don’t match.');return;}
+    const btn=$('#pwGo');btn.disabled=true;
+    const {error}=await sb.auth.updateUser({password:a});
+    if(error){btn.disabled=false;err(/different/i.test(error.message)?'Choose a password different from your current one.':error.message);return;}
+    await sb.from('profiles').update({must_change_password:false}).eq('id',ME.id);
+    ME.must_change_password=false;closeModal();toast('Password updated.');};
+  $('#pwForm').onsubmit=go;$('#pwGo').onclick=go;
+  setTimeout(()=>{const el=$('#pw1');if(el)el.focus();},30);
+}
+
+/* ---------- Engagements ---------- */
+async function switchEngagement(id,skipFlush){
+  try{if(!skipFlush)await flush();}catch(e){toast('Unsaved changes could not be saved: '+e.message);return;}
+  closeDrawer();$('#app').innerHTML='<div class="loading">Loading engagement…</div>';
+  try{await loadEngagement(id);F={q:'',level:'',cat:'',status:'active',file:'',cell:''};setSync('saved');render();}
+  catch(e){toast('Couldn’t open engagement: '+e.message);render();}
+}
+function newEngagementDlg(){
+  modal(`<div class="modal-h"><h2>New engagement</h2><button class="x" data-act="mclose">×</button></div>
+  <form class="modal-b" id="neForm"><div class="field"><label class="f" for="neName">Entity name</label><input type="text" id="neName" placeholder="e.g. Harbour Retail Pte. Ltd."></div>
+  <div class="field"><label class="f" for="neFye">Financial year end</label><input type="date" id="neFye" value="${esc(S.settings.fyEnd)}"></div>
+  <p class="hint" style="margin:0">Materiality starts with the defaults — set it on the Engagement page.</p></form>
+  <div class="modal-f"><button class="btn" data-act="mclose">Cancel</button><button class="btn primary" id="neGo">Create</button></div>`);
+  const go=async ev=>{if(ev)ev.preventDefault();const n=$('#neName').value.trim();if(!n){$('#neName').focus();return;}
+    $('#neGo').disabled=true;
+    try{const e=await createEngagement(n,{fyEnd:$('#neFye').value||DEFAULT.settings.fyEnd});closeModal();await switchEngagement(e.id);location.hash='engagement';toast(`${n} created.`);}
+    catch(err){$('#neGo').disabled=false;toast('Couldn’t create engagement: '+err.message);}};
+  $('#neForm').onsubmit=go;$('#neGo').onclick=go;setTimeout(()=>$('#neName').focus(),30);
+}
+
+/* ---------- Importing pre-login browser data or a backup ---------- */
+function localData(){try{const r=lsGet(LS_KEY);if(!r)return null;const d=JSON.parse(r);return d&&Array.isArray(d.issues)&&(d.issues.length||(d.files||[]).length)?d:null;}catch(e){return null;}}
+function importBanner(){const d=localData();if(!d||lsGet(LS_KEY+'.dismissed'))return'';
+  return `<div class="banner"><p><b>${d.issues.length} issue${d.issues.length!==1?'s':''}${(d.files||[]).length?` and ${(d.files||[]).length} file${d.files.length!==1?'s':''}`:''}</b> were saved in this browser before sign-in was added. Import them into Supabase as a new engagement?</p>
+    <div class="row"><button class="btn ghost" data-act="dismissImport">Dismiss</button><button class="btn primary" data-act="importLocal">Import</button></div></div>`;}
+async function importAsEngagement(d,label){
+  const st=Object.assign({},DEFAULT.settings,d.settings||{});
+  const e=await createEngagement(`${st.entity||'Engagement'} (${label})`,st);
+  const idMap={};
+  const files=(d.files||[]).map(f=>{const id=uuid();idMap[f.id]=id;return{id,name:f.name||'Workbook',uploaded:f.uploaded||new Date().toISOString(),sheets:Array.isArray(f.sheets)?f.sheets:[]};});
+  for(const f of files)await must(sb.from('workbooks').insert(toWb(f,e.id)));
+  let max=0;const used=new Set();
+  const issues=d.issues.map(x=>{const i=clone(x);i.uid=uuid();
+    if(i.loc&&i.loc.fileId)i.loc.fileId=idMap[i.loc.fileId]||null;
+    const m=/^AT-(\d+)$/.exec(i.id||'');if(m&&!used.has(i.id)){max=Math.max(max,+m[1]);}else i.id=null;
+    if(i.id)used.add(i.id);return i;});
+  issues.forEach(i=>{if(!i.id){max++;i.id=refName(max);}});
+  for(const c of chunk(issues.map(i=>toIssue(i,e.id,files)),400))await must(sb.from('issues').insert(c));
+  await must(sb.from('engagements').update({issue_seq:max}).eq('id',e.id));
+  await switchEngagement(e.id);
+}
+
+/* ---------- User administration (admin only, via the admin-users edge function) ---------- */
+let USERS=[];
+async function adminCall(body){
+  const {data,error}=await sb.functions.invoke('admin-users',{body});
+  if(error){let msg=error.message;try{const j=await error.context.json();if(j&&j.error)msg=j.error;}catch(_){}throw new Error(msg);}
+  if(data&&data.error)throw new Error(data.error);
+  return data;
+}
+async function vUsers(){
+  $('#app').innerHTML=`<div class="head-row"><div><h1>Users</h1><p class="sub">Add team members and set their initial password. Passwords are stored by Supabase Auth; users are asked to choose their own after signing in.</p></div>
+    <button class="btn primary" data-act="uAdd">Add user</button></div><div class="card" id="ulist"><div class="loading" style="padding:30px 0">Loading users…</div></div>
+    <div class="grid g2e mt"><div class="card"><h2>Roles</h2><table class="t"><tbody><tr><td><span class="role admin">Admin</span></td><td>Everything an auditor can do, plus manage users and delete engagements.</td></tr><tr><td><span class="role">Auditor</span></td><td>Upload workbooks, run tests and work on issues in every engagement.</td></tr></tbody></table></div>
+    <div class="card"><h2>Signing in</h2><p style="margin:0">Users sign in with their <b>username</b> and password. Deactivated users can’t sign in, but the issues they worked on are kept.</p></div></div>`;
+  try{const r=await adminCall({action:'list'});USERS=r.users||[];drawUsers();}
+  catch(e){const el=$('#ulist');if(el)el.innerHTML=`<div class="err-msg" style="margin:0">${esc(e.message)}</div>`;}
+}
+function drawUsers(){
+  const el=$('#ulist');if(!el)return;
+  const when=d=>d?new Date(d).toLocaleString('en-SG',{dateStyle:'medium',timeStyle:'short'}):'Never';
+  el.innerHTML=`<div style="overflow-x:auto"><table class="t"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead><tbody>
+  ${USERS.map(u=>`<tr class="${u.active?'':'inactive'}"><td><b>${esc(u.display_name||u.username)}</b>${u.id===ME.id?' <span class="hint" style="display:inline">(you)</span>':''}</td><td>@${esc(u.username)}</td>
+    <td><span class="role ${u.role==='admin'?'admin':''}">${u.role==='admin'?'Admin':'Auditor'}</span></td>
+    <td>${u.active?(u.must_change_password?'Active · initial password':'Active'):'Deactivated'}</td><td>${esc(when(u.last_sign_in_at))}</td>
+    <td style="text-align:right;white-space:nowrap"><button class="btn sm" data-act="uEdit" data-u="${esc(u.id)}">Edit</button> <button class="btn sm" data-act="uReset" data-u="${esc(u.id)}">Reset password</button>${u.id!==ME.id?` <button class="btn sm ghost danger" data-act="uDel" data-u="${esc(u.id)}">Delete</button>`:''}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function genPassword(){const a='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';const r=crypto.getRandomValues(new Uint32Array(12));return [...r].map(x=>a[x%a.length]).join('');}
+function userForm(u){
+  const isNew=!u;
+  modal(`<div class="modal-h"><h2>${isNew?'Add user':'Edit '+esc(u.display_name||u.username)}</h2><button class="x" data-act="mclose">×</button></div>
+  <form class="modal-b" id="uForm" novalidate><div id="uErr"></div>
+    <div class="grid g2e"><div class="field"><label class="f" for="uName">Display name</label><input type="text" id="uName" value="${esc(u?u.display_name:'')}" placeholder="e.g. Tan Wei Ling"></div>
+    <div class="field"><label class="f" for="uUser">Username</label><input type="text" id="uUser" value="${esc(u?u.username:'')}" ${isNew?'':'disabled'} autocapitalize="none" spellcheck="false" placeholder="e.g. weiling"><div class="hint">${isNew?'Lowercase letters, numbers, dot, dash or underscore.':'Usernames can’t be changed.'}</div></div></div>
+    <div class="field"><label class="f" for="uRole">Role</label><select id="uRole"><option value="auditor" ${u&&u.role==='admin'?'':'selected'}>Auditor</option><option value="admin" ${u&&u.role==='admin'?'selected':''}>Admin</option></select></div>
+    ${isNew?`<div class="field"><label class="f" for="uPw">Initial password</label><div class="row" style="flex-wrap:nowrap"><input type="text" id="uPw" autocomplete="new-password" spellcheck="false"><button type="button" class="btn" id="uGen">Generate</button></div><div class="hint">At least 8 characters. Share it with the user securely — they’ll be asked to change it after signing in.</div></div>`
+      :`<label class="row" style="gap:10px;cursor:pointer"><input type="checkbox" id="uActive" ${u.active?'checked':''} ${u.id===ME.id?'disabled':''} style="width:18px;height:18px;accent-color:var(--accent)"> Account active (can sign in)</label>`}
+  </form>
+  <div class="modal-f"><button class="btn" data-act="mclose">Cancel</button><button class="btn primary" id="uGo">${isNew?'Create user':'Save changes'}</button></div>`);
+  const err=m=>{$('#uErr').innerHTML=`<div class="err-msg">${esc(m)}</div>`;};
+  if(isNew)$('#uGen').onclick=()=>{$('#uPw').value=genPassword();};
+  const go=async ev=>{if(ev)ev.preventDefault();const btn=$('#uGo');
+    const body=isNew?{action:'create',username:$('#uUser').value.trim().toLowerCase(),display_name:$('#uName').value.trim(),role:$('#uRole').value,password:$('#uPw').value}
+      :{action:'update',user_id:u.id,display_name:$('#uName').value.trim(),role:$('#uRole').value,active:$('#uActive').checked};
+    if(isNew&&!/^[a-z0-9][a-z0-9._-]{1,31}$/.test(body.username)){err('Usernames are 2–32 characters: lowercase letters, numbers, dot, dash or underscore.');return;}
+    if(isNew&&body.password.length<8){err('The initial password needs at least 8 characters.');return;}
+    btn.disabled=true;
+    try{await adminCall(body);closeModal();toast(isNew?`${body.display_name||body.username} can now sign in as @${body.username}.`:'User updated.');
+      await refreshTeam();if(u&&u.id===ME.id){ME=Object.assign({},ME,{display_name:body.display_name||ME.display_name});renderAcct();}vUsers();}
+    catch(e){btn.disabled=false;err(e.message);}};
+  $('#uForm').onsubmit=go;$('#uGo').onclick=go;
+}
+function resetForm(u){
+  modal(`<div class="modal-h"><h2>Reset password</h2><button class="x" data-act="mclose">×</button></div>
+  <form class="modal-b" id="rForm" novalidate><div id="rErr"></div><p style="margin-top:0">Set a new initial password for <b>${esc(u.display_name||u.username)}</b> (@${esc(u.username)}).${u.id===ME.id?'':' They’ll be asked to change it after signing in.'}</p>
+    <div class="field"><label class="f" for="rPw">New password</label><div class="row" style="flex-wrap:nowrap"><input type="text" id="rPw" autocomplete="new-password" spellcheck="false"><button type="button" class="btn" id="rGen">Generate</button></div><div class="hint">At least 8 characters.</div></div></form>
+  <div class="modal-f"><button class="btn" data-act="mclose">Cancel</button><button class="btn primary" id="rGo">Reset password</button></div>`);
+  $('#rGen').onclick=()=>{$('#rPw').value=genPassword();};
+  const go=async ev=>{if(ev)ev.preventDefault();const pw=$('#rPw').value;if(pw.length<8){$('#rErr').innerHTML='<div class="err-msg">Use at least 8 characters.</div>';return;}
+    $('#rGo').disabled=true;try{await adminCall({action:'reset_password',user_id:u.id,password:pw});closeModal();toast('Password reset.');vUsers();}
+    catch(e){$('#rGo').disabled=false;$('#rErr').innerHTML=`<div class="err-msg">${esc(e.message)}</div>`;}};
+  $('#rForm').onsubmit=go;$('#rGo').onclick=go;
+}
+
+/* ---------- Start ---------- */
+async function boot(){
+  if(!sb){document.body.classList.add('out');$('#app').innerHTML=`<div class="login"><div class="card"><h1>Can’t reach the sign-in service</h1><p class="sub">The Supabase library didn’t load. Check your internet connection or network filters, then reload the page.</p></div></div>`;return;}
+  document.body.classList.add('out');$('#app').innerHTML='<div class="loading">Loading…</div>';
+  const {data,error}=await sb.auth.getUser();
+  if(!error&&data&&data.user)await startSession(data.user);else showLogin();
+}
+if(sb)sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'&&ME&&!signingOut)setTimeout(()=>showLogin('Your session has ended. Please sign in again.'),0);});
+boot();
 </script>
 </body>
 </html>
